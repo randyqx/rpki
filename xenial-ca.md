@@ -17,7 +17,9 @@ I built the following:
   * [16.04 Ubuntu Xenial LTS 64-bit server][1]
   * I do a fairly basic install, OpenSSH, basic utilities, and grub 
   * apt update and apt dist-upgrade of course 
-  * I install automatic updates, emacs-nox, ntp, ... with ansible. Note that ansible requires python2 and xenial installs python3. So I had to install python2.7 
+  * I install automatic updates, emacs-nox, ntp, ... with ansible. Note
+    that ansible requires python2 and xenial installs python3. So I had to
+    install python2.7 
 
 I am lazy and log in as root as pretty much everything I do is going to
 require being root. If you like sudo, then just prefix a lot with it.
