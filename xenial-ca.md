@@ -2,21 +2,18 @@
 
 I wanted to build a DRLng (rrdp, integrated root CA, seriously reworked and
 meaner and leaner) Certificate Authority.
-
   * I prefer Ubuntu these days. 
   * I wanted to build it on Ubuntu Xenial because Xenial has the upgraded TLS for rrdp. 
 
 ## System Requirements
 
 I built the following:
-
   * 32GB of hard disk, enough to leave headroom unless you plan a LOT of certificates, as in thousands; 
   * 2GB or RAM, as it still is a bit of a RAM hog; and 
   * One CPU should be enough to start. 
   * The server must not have an AAAA DNS RR unless it has working IPv6 connectivity. 
 
 ## Xenial Install
-
   * [16.04 Ubuntu Xenial LTS 64-bit server][1]
   * I do a fairly basic install, OpenSSH, basic utilities, and grub 
   * apt update and apt dist-upgrade of course 
