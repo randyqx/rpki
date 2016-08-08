@@ -262,11 +262,10 @@ a remote system
 
 ## An Overview Using the rpkic CLI in setup phase
 
-We will walk through a specific example in the next section.
-
 The general structure of the setup phase in rpkic is described here.
-The following assumes that you have already installed the software and
-started the servers.
+The following assumes that we have already installed the software and
+started the servers.  We will walk through a specific example in the
+next section.
 
   * The rpkic `initialize` command writes out an `identity.xml` file in
     addition to all of its other tasks.  
@@ -277,13 +276,13 @@ started the servers.
     XML file, which the parent sends back to the child.
 
   * A child who is running rpkic runs the `configure_parent` command to
-    process the parent`s response, giving it the XML file sent back by
-    the parent as input to this command. configure_parent will write out
-    a publication request XML file, which the child sents to the
+    process the parent's response, giving it the XML file sent back by
+    the parent as input to this command.  `configure_parent` will write
+    out a publication request XML file, which the child sends to the
     repository operator.
 
   * A repository operator who is using rpkic runs the
-    `configure_publication_client` command to process a client`s
+    `configure_publication_client` command to process a client's
     publication request. configure_publication_client generates a
     confirmation XML message which the repository operator sends back to
     the client.
@@ -291,19 +290,14 @@ started the servers.
   * A publication client who is using rpkic runs the
     `configure_repository` command to process the repository's response.
 
-
 ## Identity and Publication
 
-You need to establish the BPKI relationship with your parent CA. In my
-case, that was RIPE
+We need to establish the BPKI relationship with our parent CA. In this
+example, that was RIPE
 
-You may want to look below or at the [Using the rpkic CLI in setup
-phase](https://github.com/dragonresearch/rpki.net/blob/master/doc/27.RPKI.CA.UI.rpkic.md#rpkic-in-data-maintenance-phase)
-for a general description of the CLI-based provisioning steps.
+### The Cild/Parent Identity Handshake
 
-### The Identity/Repository Handshake
-
-In this example, my CA was to be a child of RIPE's CA, so I needed to
+In this example, the CA was to be a child of RIPE's CA, so we needed to
 get the indentity of RIPE as a parent.  
 
 I browsed to [RIPE's provisioning
@@ -318,9 +312,13 @@ I used that file to configure my server's view of its parent
     Parent calls us 'f1400649-ab90-4332-b7e3-3da6b7e44cdb'
     Wrote /root/CA-data/RGnet.3336711f-25e1-4b5c-9748-e6c58bef82a5.repository-request.xml
     This is the file to send to the repository operator
-    
-In my example, my CA needed a repository, and we are assuming that we
-will also host it.  So my CA should accept its own offer made above
+
+### The Publicatin Handshake
+
+In this example, our CA needed a repository, and we are assuming that we
+will also host it.  So our CA should send the file received above to the
+server chosen to host its repository.  In this case, that it itself, so
+it configures itself as its publication server.
     
     # rpkic configure_publication_client RGnet.3336711f-25e1-4b5c-9748-e6c58bef82a5.repository-request.xml 
     This might be an offer, checking
@@ -330,11 +328,13 @@ will also host it.  So my CA should accept its own offer made above
     Wrote /root/CA-data/RGnet.repository-response.xml
     Send this file back to the publication client you just configured
 
-And then I configured the my repository using the response from above
+Then we configure the my repository using the response from above
     
     # rpkic configure_repository RGnet.repository-response.xml
     Repository calls us 'RGnet'
     No explicit parent_handle given, guessing parent 3336711f-25e1-4b5c-9748-e6c58bef82a5
+
+### Confirm We Are Publishing
 
 You can see if it is publishing, maybe using a bit of coercion
     
@@ -347,13 +347,10 @@ You can see if it is publishing, maybe using a bit of coercion
 If the publication sub-directory is not there, go work on something else for a
 while and come back.
 
-
-### The GUI Should Now Work
+## The GUI Should Now Work
 
 One simple test is to try the GUI. But first you need to set up the GUI
 superuser password. [ insert lecture on strong passwords ]
-
-    
     
     # rpki-manage createsuperuser
     Username (leave blank to use 'rpki'): RGnet
@@ -361,26 +358,26 @@ superuser password. [ insert lecture on strong passwords ]
     Password: 
     Password (again): 
     Superuser created successfully.
-    
 
 and write it down somewhere safe.
 
-Then you can point your browser at `https://ca.rg.net`, and you should see the
-login page. Enter the user 'RGnet' (per above) and the password from
-createsuperuser above. This should take you to RGnet's dashboard.
+Then you can point your browser at `https://ca.rg.net`, and you should
+see the login page. Enter the user 'RGnet' (per above) and the password
+from createsuperuser above. This should take you to RGnet's dashboard.
 
 ## Creating a New Root Authority
 
 If you also need to be a CA for private address space, legacy space ARIN will
 not certify, etc. you will want to create a root CA.
 
-    
+### Configure a Root
+
+First create an internal root CA
     
     # rpkic configure_root
     Generating root for resources ASN: 0-4294967295, V4: 0.0.0.0/0, V6: ::/0
     Wrote /root/CA-stuff/altCA.altCA.repository-request.xml
     This is the file to send to the repository operator
-    
 
 creates a weird kind of parent object, gives you back the XML for repository
 setup (same as it did before, difference is just the implementation).
@@ -389,15 +386,12 @@ configure_root can take an optional --resources argument which configures the
 set of resources for the root to hold. As you can see, by default it's
 everything (0-4294967295,0.0.0.0/8,::/0).
 
-### Extract Root Certificate and TAL
+### Extract the Root Certificate and TAL
 
 There are two new commands to extract root cert and TAL:
-
-    
     
     # rpkic extract_root_certificate
     # rpkic extract_root_tal
-    
 
 The latter is a bit iffy in the sense that it has no way of knowing how you
 really set up all the things beyond its direct control: the TAL it generates
