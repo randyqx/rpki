@@ -20,7 +20,7 @@ I built the following:
 
 ## Xenial Install
 
-  * [ 16.04 Ubuntu Xenial LTS 64-bit server](http://releases.ubuntu.com/16.04/ubuntu-16.04-server-amd64.iso)
+  * [16.04 Ubuntu Xenial LTS 64-bit server](http://releases.ubuntu.com/16.04/ubuntu-16.04-server-amd64.iso)
   * I do a fairly basic install, OpenSSH, basic utilities, and grub 
   * apt update and apt dist-upgrade of course 
   * I install automatic updates, emacs-nox, ntp, ... with ansible. Note
@@ -94,7 +94,7 @@ Do not change this now as it would place an asocial load on the global RPKI.
 If you plan to use the rpki-rtr protocol to feed a router from the RP cache
 you just installed, check `/etc/xinetd.d/rpki-rtr` to be sure the port number
 is 323, the IANA assigned port, as opposed to some old hacks that were used
-pre [RFC 6810][3].
+pre [RFC 6810](http://www.rfc-editor.org/rfc/rfc6810.txt).
 
     # cat > /etc/xinetd.d/rpki-rtr << EOF
     service rpki-rtr
@@ -291,13 +291,16 @@ a remote system
 You need to establish the BPKI relationship with your parent CA. In this case,
 that was RIPE
 
-You may want to look below at the [Using the rpkic CLI in setup phase][4] for
-a general description of the provisioning steps.
+You may want to look below at the [Using the rpkic CLI in setup
+phase](https://github.com/dragonresearch/rpki.net/blob/master/doc/27.RPKI.CA.UI.rpkic.md#rpkic-in-data-maintenance-phase)
+for a general description of the provisioning steps.
 
 ### The Identity/Repository Handshake
 
-I browsed to [RIPE's provisioning page][5] and uploaded /root/CA-
-data/RGnet.identity.xml and received back issuer-identity-20160513.xml
+I browsed to [RIPE's provisioning
+page](https://my.ripe.net/#/provisioning/non-hosted) and uploaded
+/root/CA- data/RGnet.identity.xml and received back
+issuer-identity-20160513.xml
 
 I used that file to configure my server's view of its parent
 
@@ -370,10 +373,12 @@ createsuperuser above. This should take you to RGnet's dashboard.
 
 ## Using the rpkic CLI in setup phase
 
-See the [introduction to the user interfaces][6] for an overview of how setup
-phase works. The general structure of the setup phase in rpkic is as described
-there, but here we provide the specific commands involved. The following
-assumes that you have already installed the software and started the servers.
+See the [introduction to the user
+interfaces](https://github.com/dragonresearch/rpki.net/blob/master/doc/27.RPKI.CA.UI.rpkic.md)
+for an overview of how setup phase works. The general structure of the
+setup phase in rpkic is as described there, but here we provide the
+specific commands involved. The following assumes that you have already
+installed the software and started the servers.
 
   * The rpkic "initialize" command writes out an "identity.xml" file in addition to all of its other tasks. 
   * A parent who is using rpkic runs the "configure_child" command to configure the child, giving this command the identity.xml file the child supplied as input. configure_child will write out a response XML file, which the parent sends back to the child. 
@@ -429,14 +434,3 @@ root certificate is how the RP finds RRDP, not the other way around), so
 you'll need to put a copy of the root certificate in the location named by the
 HTTPS URI in the TAL (/usr/share/rpki/rrdp-publication/ in the default Ubuntu
 setup).
-
-   [2]: https://wiki.rg.net/AcmeTinyUbuntu
-
-   [3]: http://www.rfc-editor.org/rfc/rfc6810.txt
-
-   [4]: https://trac.rpki.net/wiki/doc/RPKI/RRDPtestbed#UsingtherpkicCLIinsetupphase
-
-   [5]: https://my.ripe.net/#/provisioning/non-hosted
-
-   [6]: #_.wiki.doc.RPKI
-
