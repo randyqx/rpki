@@ -148,10 +148,10 @@ That is it for configuration of `/etc/rpki.conf`!
 
 ### rsyncd Configuration
 
-Next, you want to get the rsync daemon working. First you need to tell the
-rsync daemon what it should serve. So configure `/etc/rsyncd.conf` as follows:
-
-    
+If you will be running a publication server as opposed to publishing on
+some others' server, you need to get the rsync daemon working. First you
+need to tell the rsync daemon what it should serve. So configure
+`/etc/rsyncd.conf` as follows:
     
     # cat > /etc/rsyncd.conf << EOF
     uid             = nobody
@@ -170,13 +170,10 @@ rsync daemon what it should serve. So configure `/etc/rsyncd.conf` as follows:
         read only           = yes
         transfer logging    = yes
         path                = /usr/share/rpki/rrdp-publication
-        comment             = altCA TAL
+        comment             = MyCA TAL
     EOF
-    
 
 Then tell xinetd to run the rsync deamon when asked and then to restart xinetd
-
-    
     
     # cat > /etc/xinetd.d/rsync << EOF
     service rsync
@@ -192,11 +189,8 @@ Then tell xinetd to run the rsync deamon when asked and then to restart xinetd
         log_on_failure  += USERID
     }
     EOF
-    
 
 Remember to
-
-    
     
     # systemctl restart xinetd
     
@@ -210,15 +204,10 @@ The remaining configuration is done using the RPKI software itself.
 Before configuring the CA daemon and database, you should first restart the
 daemons.
 
-    
-    
     # systemctl restart rpki-ca
     
-
 You should see the daemons running
 
-    
-    
     # /bin/ps axu | grep rpki | grep -v grep
     rpki      5250  0.1  2.7 546316 57316 ?        Sl   07:37   0:00 (wsgi:rpkigui)    -k start
     rpki      5597  0.0  0.3  25348  7132 ?        Ss   07:42   0:00 /usr/bin/python /usr/bin/rcynic-cron
@@ -232,91 +221,106 @@ You should see the daemons running
 
 ### Initializing the CA
 
-The command utility, `rpkic` is a CLI for dealing with the CA. This example
-uses it instead of the GUI, especially for initial setup, as it is easier to
-copy and paste into a wiki. The CLI has tab completion, and the other features
-offered by readline().
+The command utility, `rpkic` is a CLI for dealing with the CA. This
+example uses it instead of the GUI, especially for initial setup, as it
+is easier to copy and paste into markdown. The CLI has tab completion,
+and the other features offered by readline().
 
-It makes life easier if you do all this in a sub-directory to keep it all
-together. Also, files are written and read from the current directory, often
-with code running under the uid of rpki. So make the director writiable by
-that uid.
-
-    
+It makes life easier if I do all this in a sub-directory to keep it all
+together. Also, files are written and read from the current directory,
+often with code running under the uid of rpki.  So I make the directory
+writiable by that uid.
     
     # mkdir CA-data
     # chown rpki CA-data
     # cd CA-data
-    
 
-rpkic has the concept of the current identity. Initially, it starts with the
-identity from the handle in `/etc/rpki.conf`, RGnetCA in this example
-
-    
+rpkic has the concept of the current identity.  Initially, it starts
+with the identity from the handle in `/etc/rpki.conf`, RGnetCA in this
+example
     
     # rpkic
     rpkic>
-    
 
 Before you do anything else, you need to initialize the CA. Note that we now
 use `create_identity` as opposed to `initialize`. As mentioned previously, for
 the moment the identity should be the same as the `handle` in /etc/rpki.conf.
 
-    
-    
-    # rpkic
     # rpkic create_identity RGnet
     Wrote /root/CA-data/RGnet.identity.xml
     This is the "identity" file you will need to send to your parent
-    
 
 For testing, copy the identity to the publication point.
-
-    
     
     # rsync RGnet.identity.xml /usr/share/rpki/publication
-    
 
 As the publication point now has data, it is recommended that you test it from
 a remote system
-
-    
     
     % rsync rsync://ca.rg.net/rpki/RGnet.identity.xml
     -rw-r--r--        1175 2016/04/24 16:53:53 RGnet.identity.xml
-    
+
+## An Overview Using the rpkic CLI in setup phase
+
+We will walk through a specific example in the next section.
+
+The general structure of the setup phase in rpkic is described here.
+The following assumes that you have already installed the software and
+started the servers.
+
+  * The rpkic `initialize` command writes out an `identity.xml` file in
+    addition to all of its other tasks.  
+
+  * A parent who is using rpkic runs the `configure_child` command to
+    configure the child, giving this command the identity.xml file the
+    child supplied as input. configure_child will write out a response
+    XML file, which the parent sends back to the child.
+
+  * A child who is running rpkic runs the `configure_parent` command to
+    process the parent`s response, giving it the XML file sent back by
+    the parent as input to this command. configure_parent will write out
+    a publication request XML file, which the child sents to the
+    repository operator.
+
+  * A repository operator who is using rpkic runs the
+    `configure_publication_client` command to process a client`s
+    publication request. configure_publication_client generates a
+    confirmation XML message which the repository operator sends back to
+    the client.
+
+  * A publication client who is using rpkic runs the
+    `configure_repository` command to process the repository's response.
+
 
 ## Identity and Publication
 
-You need to establish the BPKI relationship with your parent CA. In this case,
-that was RIPE
+You need to establish the BPKI relationship with your parent CA. In my
+case, that was RIPE
 
-You may want to look below at the [Using the rpkic CLI in setup
+You may want to look below or at the [Using the rpkic CLI in setup
 phase](https://github.com/dragonresearch/rpki.net/blob/master/doc/27.RPKI.CA.UI.rpkic.md#rpkic-in-data-maintenance-phase)
-for a general description of the provisioning steps.
+for a general description of the CLI-based provisioning steps.
 
 ### The Identity/Repository Handshake
 
+In this example, my CA was to be a child of RIPE's CA, so I needed to
+get the indentity of RIPE as a parent.  
+
 I browsed to [RIPE's provisioning
-page](https://my.ripe.net/#/provisioning/non-hosted) and uploaded
-/root/CA- data/RGnet.identity.xml and received back
+page](https://my.ripe.net/#/provisioning/non-hosted), uploaded my
+identity /root/CA- data/RGnet.identity.xml and received back
 issuer-identity-20160513.xml
 
 I used that file to configure my server's view of its parent
 
-    
-    
     # rpkic configure_parent issuer-identity-20160513.xml 
     Parent calls itself '3336711f-25e1-4b5c-9748-e6c58bef82a5', we call it '3336711f-25e1-4b5c-9748-e6c58bef82a5'
     Parent calls us 'f1400649-ab90-4332-b7e3-3da6b7e44cdb'
     Wrote /root/CA-data/RGnet.3336711f-25e1-4b5c-9748-e6c58bef82a5.repository-request.xml
     This is the file to send to the repository operator
     
-
-The CA will need a repository, and we are assuming that we will also host it.
-So it should accept its own offer made above
-
-    
+In my example, my CA needed a repository, and we are assuming that we
+will also host it.  So my CA should accept its own offer made above
     
     # rpkic configure_publication_client RGnet.3336711f-25e1-4b5c-9748-e6c58bef82a5.repository-request.xml 
     This might be an offer, checking
@@ -325,20 +329,14 @@ So it should accept its own offer made above
     Client calls itself 'RGnet', we call it 'RGnet'
     Wrote /root/CA-data/RGnet.repository-response.xml
     Send this file back to the publication client you just configured
-    
 
-And then I configured the repository using the response from above
-
-    
+And then I configured the my repository using the response from above
     
     # rpkic configure_repository RGnet.repository-response.xml
     Repository calls us 'RGnet'
     No explicit parent_handle given, guessing parent 3336711f-25e1-4b5c-9748-e6c58bef82a5
-    
 
 You can see if it is publishing, maybe using a bit of coercion
-
-    
     
     # rpkic force_publication
     # ls -l /usr/share/rpki/publication
@@ -346,9 +344,9 @@ You can see if it is publishing, maybe using a bit of coercion
     drwxr-xr-x 2 rpki rpki 4096 May 14 07:39 RGnet/
     -rw-r--r-- 1 root root 1175 May 14 07:10 RGnet.identity.xml
     
-
 If the publication sub-directory is not there, go work on something else for a
 while and come back.
+
 
 ### The GUI Should Now Work
 
@@ -370,21 +368,6 @@ and write it down somewhere safe.
 Then you can point your browser at `https://ca.rg.net`, and you should see the
 login page. Enter the user 'RGnet' (per above) and the password from
 createsuperuser above. This should take you to RGnet's dashboard.
-
-## Using the rpkic CLI in setup phase
-
-See the [introduction to the user
-interfaces](https://github.com/dragonresearch/rpki.net/blob/master/doc/27.RPKI.CA.UI.rpkic.md)
-for an overview of how setup phase works. The general structure of the
-setup phase in rpkic is as described there, but here we provide the
-specific commands involved. The following assumes that you have already
-installed the software and started the servers.
-
-  * The rpkic "initialize" command writes out an "identity.xml" file in addition to all of its other tasks. 
-  * A parent who is using rpkic runs the "configure_child" command to configure the child, giving this command the identity.xml file the child supplied as input. configure_child will write out a response XML file, which the parent sends back to the child. 
-  * A child who is running rpkic runs the "configure_parent" command to process the parent's response, giving it the XML file sent back by the parent as input to this command. configure_parent will write out a publication request XML file, which the child sents to the repository operator. 
-  * A repository operator who is using rpkic runs the "configure_publication_client" command to process a client's publication request. configure_publication_client generates a confirmation XML message which the repository operator sends back to the client. 
-  * A publication client who is using rpkic runs the "configure_repository" command to process the repository's response. 
 
 ## Creating a New Root Authority
 
