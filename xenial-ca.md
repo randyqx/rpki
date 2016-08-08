@@ -267,8 +267,8 @@ The following assumes that we have already installed the software and
 started the servers.  We will walk through a specific example in the
 next section.
 
-  * The rpkic `initialize` command writes out an `identity.xml` file in
-    addition to all of its other tasks.  
+  * The rpkic `create_identity` command writes out an `identity.xml`
+    file in addition to all of its other tasks.
 
   * A parent who is using rpkic runs the `configure_child` command to
     configure the child, giving this command the identity.xml file the
@@ -290,7 +290,7 @@ next section.
   * A publication client who is using rpkic runs the
     `configure_repository` command to process the repository's response.
 
-## Identity and Publication
+## Identity and Publication Example
 
 We need to establish the BPKI relationship with our parent CA. In this
 example, that was RIPE
@@ -302,10 +302,10 @@ get the indentity of RIPE as a parent.
 
 I browsed to [RIPE's provisioning
 page](https://my.ripe.net/#/provisioning/non-hosted), uploaded my
-identity /root/CA- data/RGnet.identity.xml and received back
-issuer-identity-20160513.xml
+identity from `create_identity`, /root/CA-data/RGnet.identity.xml, and
+received back issuer-identity-20160513.xml
 
-I used that file to configure my server's view of its parent
+We use that file to configure our server's view of its parent
 
     # rpkic configure_parent issuer-identity-20160513.xml 
     Parent calls itself '3336711f-25e1-4b5c-9748-e6c58bef82a5', we call it '3336711f-25e1-4b5c-9748-e6c58bef82a5'
@@ -328,7 +328,7 @@ it configures itself as its publication server.
     Wrote /root/CA-data/RGnet.repository-response.xml
     Send this file back to the publication client you just configured
 
-Then we configure the my repository using the response from above
+Then we configure our repository using the response from above
     
     # rpkic configure_repository RGnet.repository-response.xml
     Repository calls us 'RGnet'
