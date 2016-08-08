@@ -20,7 +20,7 @@ I built the following:
 
 ## Xenial Install
 
-  * [16.04 Ubuntu Xenial LTS 64-bit server][1]
+  * [http://releases.ubuntu.com/16.04/ubuntu-16.04-server-amd64.iso 16.04 Ubuntu Xenial LTS 64-bit server]c
   * I do a fairly basic install, OpenSSH, basic utilities, and grub 
   * apt update and apt dist-upgrade of course 
   * I install automatic updates, emacs-nox, ntp, ... with ansible. Note
@@ -54,18 +54,21 @@ Install the software:
 
 500kg of packages will be installed. The daemons should also be started.
     
-    # /bin/ps axu | grep rpki | grep -v grep
-    rpki      5250  0.0  0.4 308040  8404 ?        Sl   07:37   0:00 (wsgi:rpkigui)    -k start
-    rpki      5436  0.0  0.4  45184  9380 ?        Ss   07:37   0:00 /usr/bin/python /usr/lib/rpki/rpki-nanny --log-level warning --log-directory /var/log/rpki --log-rotating-file-hours 3 --log-backup-count 56
-    rpki      5437  1.1  2.2 220204 45584 ?        S    07:37   0:00 /usr/bin/python /usr/lib/rpki/irdbd --foreground --log-level warning --log-timed-rotating-file /var/log/rpki/irdbd.log 3 56
-    rpki      5439  1.1  2.0 206428 42220 ?        S    07:37   0:00 /usr/bin/python /usr/lib/rpki/pubd --foreground --log-level warning --log-timed-rotating-file /var/log/rpki/pubd.log 3 56
-    postgres  5499  0.0  0.7 302016 15272 ?        Ss   07:37   0:00 postgres: rpki rpki [local] idle
-    
+    # /bin/ps axu | grep ^rpki
+    rpki     28310  0.1  2.9 618940 59624 ?        Sl   06:33   0:01 (wsgi:rpkigui)    -k start
+    rpki     28490  0.0  0.4  45216  9160 ?        Ss   06:33   0:00 /usr/bin/python /usr/lib/rpki/rpki-nanny
+    rpki     28491  0.0  0.3  45216  7948 ?        S    06:33   0:00 /usr/bin/python /usr/lib/rpki/rpki-nanny
+    rpki     28492  0.1  2.2 225252 46776 ?        S    06:33   0:00 /usr/bin/python /usr/lib/rpki/irdbd --foreground
+    rpki     28493  0.1  2.3 227880 47696 ?        S    06:33   0:00 /usr/bin/python /usr/lib/rpki/rpkid --foreground
+    rpki     28494  0.1  2.1 211696 43700 ?        S    06:33   0:00 /usr/bin/python /usr/lib/rpki/pubd --foreground
+    rpki     28547  0.0  0.3  25356  7108 ?        Ss   06:36   0:00 /usr/bin/python /usr/bin/rcynic-cron
+    rpki     28548 13.5  4.6 268756 94456 ?        S    06:36   0:55 /usr/bin/python /usr/bin/rcynic
+
 
 ## Minimal Configuration
 
-This example install uses the server hostname `ca.rg.net`. Any use of that
-hostname below will have to be replaced with your host's name, of course.
+This example install uses the server hostname `ca.rg.net`.  Any use of that
+hostname below should be replaced with your host's name, of course.
 
 ### Relying Party - rcynic
 
