@@ -1,19 +1,25 @@
-# Building a DRLng Certificate Authority on Ubuntu Xenial
+# QuickStart a DRLng Certificate Authority on Ubuntu Xenial
 
-I wanted to build a DRLng (rrdp, integrated root CA, seriously reworked and
-meaner and leaner) Certificate Authority.
+I wanted to build a DRLng (rrdp, integrated root CA, seriously reworked
+and meaner and leaner) Certificate Authority.
+
   * I prefer Ubuntu these days. 
-  * I wanted to build it on Ubuntu Xenial because Xenial has the upgraded TLS for rrdp. 
+  * I wanted to build it on Ubuntu Xenial because Xenial has the
+    upgraded TLS for rrdp.  
 
 ## System Requirements
 
 I built the following:
-  * 32GB of hard disk, enough to leave headroom unless you plan a LOT of certificates, as in thousands; 
+
+  * 32GB of hard disk, enough to leave headroom unless you plan a LOT of
+    certificates, as in thousands;  
   * 2GB or RAM, as it still is a bit of a RAM hog; and 
   * One CPU should be enough to start. 
-  * The server must not have an AAAA DNS RR unless it has working IPv6 connectivity. 
+  * The server must not have an AAAA DNS RR unless it has working IPv6
+    connectivity.  
 
 ## Xenial Install
+
   * [16.04 Ubuntu Xenial LTS 64-bit server][1]
   * I do a fairly basic install, OpenSSH, basic utilities, and grub 
   * apt update and apt dist-upgrade of course 
@@ -26,35 +32,27 @@ require being root. If you like sudo, then just prefix a lot with it.
 
 ## Install the Basic RPKI CA and RP Software
 
-You should only need to perform these steps once for any particular machine.
+You should only need to perform these steps once for any particular
+machine.
 
 Add the GPG public key for this repository (optional, but APT will whine
 unless you do this):
     
-    # wget -q -O - http://download.rpki.net/APTng/apt-gpg-key.asc | sudo apt-key add -
+    # wget -q -O /etc/apt/trusted.gpg.d/rpki.asc   https://download.rpki.net/APTng/apt-gpg-key.asc
     
-Configure APT to use this repository (for Ubuntu Trusty systems):
+Configure APT to use this repository (for Ubuntu Xenial):
 
-    # wget -q -O /etc/apt/sources.list.d/rpki.list http://download.rpki.net/APTng/rpki.trusty.list
+    # wget -q -O /etc/apt/sources.list.d/rpki.list https://download.rpki.net/APTng/rpki.xenial.list
     
-
 Update available packages:
-
-    
     
     # apt update
-    
 
 Install the software:
-
-    
     
     # apt install rpki-rp rpki-ca
-    
 
 500kg of packages will be installed. The daemons should also be started.
-
-    
     
     # /bin/ps axu | grep rpki | grep -v grep
     rpki      5250  0.0  0.4 308040  8404 ?        Sl   07:37   0:00 (wsgi:rpkigui)    -k start
@@ -71,24 +69,21 @@ hostname below will have to be replaced with your host's name, of course.
 
 ### Relying Party - rcynic
 
-The RP (Relying Party) software should have installed and should be running.
-You can test it by browsing to <https://ca.rg.net/rcynic/>. It uses a self-
-signed TLS certificate; you can be lazy and decided to accept it as opposed to
-installing a real one. If you want to use a Lets Encrypt certificate, you
-might try [this homegrown recipe using acme_tiny.py][2], which will require a
-bit of hacking as the rpki package puts apache credentials in an odd place.
+The RP (Relying Party) software should have installed and should be
+running.  You can test it by browsing to <https://ca.rg.net/rcynic/>,
+but it may not be populated yet, see below.  It uses a self-signed TLS
+certificate; you can be lazy and decided to accept it as opposed to
+installing a real one.  If you want to use a Let's Encrypt certificate,
+you might try [this homegrown recipe using acme_tiny.py][2], which will
+require a bit of hacking as the rpki package puts apache credentials in
+an odd place.
 
-!!!!!!!!! THE RCYNIC PAGE IS EMPTY !!!!!!
-
-The rcynic web page has not populated yet because the cron job to populate is
+The rcynic web page may not populated yet because the cron job to populate is
 generated for a socially polite cache which fetches once an hour.
-
-    
     
     # crontab -l -u rpki
     MAILTO=root
     41 * * * *      exec /usr/bin/rcynic-cron
-    
 
 Do not change this now as it would place an asocial load on the global RPKI.
 
@@ -97,8 +92,6 @@ you just installed, check `/etc/xinetd.d/rpki-rtr` to be sure the port number
 is 323, the IANA assigned port, as opposed to some old hacks that were used
 pre [RFC 6810][3].
 
-    
-    
     # cat > /etc/xinetd.d/rpki-rtr << EOF
     service rpki-rtr
     {
@@ -113,24 +106,23 @@ pre [RFC 6810][3].
         server_args    = server /var/rcynic/rpki-rtr
         }
     EOF
-    
 
 If you have to change it, remember to
-
-    
     
     # systemctl restart xinetd
     
-
-The configuration for rcynic is in `/etc/rpki.conf`. Note that it says to use
-the trust anchors in the directory `/etc/rpki/trust-anchors`. You may want to
-change the set of trust anchors if you have unusual requirements.
+The configuration for rcynic is in `/etc/rpki.conf`. Note that it says
+to use the trust anchors in the directory `/etc/rpki/trust-anchors`. You
+may want to change the set of trust anchors if you have unusual
+requirements.
 
 ### CA Configuration - rpki.conf
 
-`/etc/rpki.conf` is the core configuration file for the CA. You need to make
-very minimal changes. If you want an explanation for all the options, go to
-<https://trac.rpki.net/wiki/doc/RPKI/CA/Configuration>. Get coffee first.
+`/etc/rpki.conf` is the core configuration file for the CA. You need to
+make very minimal changes. If you want an explanation for all the
+options, go to
+<https://trac.rpki.net/wiki/doc/RPKI/CA/Configuration>. Get coffee
+first.
 
 `handle` is generated as `ca_rg_net` or whatever. You may want to change it to
 something more intuitive such as `testCA` or whatever you like. You do not
