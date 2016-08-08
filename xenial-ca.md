@@ -77,9 +77,10 @@ running.  You can test it by browsing to <https://ca.rg.net/rcynic/>,
 but it may not be populated yet, see below.  It uses a self-signed TLS
 certificate; you can be lazy and decided to accept it as opposed to
 installing a real one.  If you want to use a Let's Encrypt certificate,
-you might try [this homegrown recipe using acme_tiny.py][2], which will
-require a bit of hacking as the rpki package puts apache credentials in
-an odd place.
+you might try [this homegrown recipe using
+acme_tiny.py](https://wiki.rg.net/AcmeTinyUbuntu), which will require a
+bit of hacking as the rpki package puts apache credentials in an odd
+place.
 
 The rcynic web page may not populated yet because the cron job to populate is
 generated for a socially polite cache which fetches once an hour.
@@ -428,8 +429,6 @@ root certificate is how the RP finds RRDP, not the other way around), so
 you'll need to put a copy of the root certificate in the location named by the
 HTTPS URI in the TAL (/usr/share/rpki/rrdp-publication/ in the default Ubuntu
 setup).
-
-   [1]: http://releases.ubuntu.com/16.04/ubuntu-16.04-server-amd64.iso
 
    [2]: https://wiki.rg.net/AcmeTinyUbuntu
 
