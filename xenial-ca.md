@@ -73,21 +73,22 @@ hostname below should be replaced with your host's name, of course.
 ### Relying Party - rcynic
 
 The RP (Relying Party) software should have installed and should be
-running.  You can test it by browsing to <https://ca.rg.net/rcynic/>,
-but it may not be populated yet, see below.  It uses a self-signed TLS
-certificate; you can be lazy and decided to accept it as opposed to
-installing a real one.  If you want to use a Let's Encrypt certificate,
-you might try [this homegrown recipe using
-acme_tiny.py](https://wiki.rg.net/AcmeTinyUbuntu), which will require a
-bit of hacking as the rpki package puts apache credentials in an odd
-place.
+running.  You can test it by browsing to <https://ca.rg.net/rcynic/>
+(remember to use your server's name) but it may not be populated yet,
+see below.  It uses a self-signed TLS certificate; you can be lazy and
+decided to accept it as opposed to installing a real one.  If you want
+to use a Let's Encrypt certificate, you might try [this homegrown recipe
+using acme_tiny.py](https://wiki.rg.net/AcmeTinyUbuntu), which will
+require a bit of hacking as the rpki package puts apache credentials in
+an odd place.
 
-The rcynic web page may not populated yet because the cron job to populate is
-generated for a socially polite cache which fetches once an hour.
+The rcynic web page is likely not yet populated because the cron job to
+populate is generated for a socially polite cache which fetches once an
+hour.
     
     # crontab -l -u rpki
     MAILTO=root
-    41 * * * *      exec /usr/bin/rcynic-cron
+    42 * * * *      exec /usr/bin/rcynic-cron
 
 Do not change this now as it would place an asocial load on the global RPKI.
 
@@ -125,8 +126,8 @@ requirements.
 `/etc/rpki.conf` is the core configuration file for the CA. You need to
 make very minimal changes. If you want an explanation for all the
 options, go to
-<https://trac.rpki.net/wiki/doc/RPKI/CA/Configuration>. Get coffee
-first.
+<https://github.com/dragonresearch/rpki.net/blob/master/doc/12.RPKI.CA.Configuration.md>.
+Get coffee first.
 
 `handle` is generated as `ca_rg_net` or whatever. You may want to change it to
 something more intuitive such as `testCA` or whatever you like. You do not
