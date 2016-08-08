@@ -382,7 +382,7 @@ First create an internal root CA
 creates a weird kind of parent object, gives you back the XML for repository
 setup (same as it did before, difference is just the implementation).
 
-configure_root can take an optional --resources argument which configures the
+`configure_root` can take an optional --resources argument which configures the
 set of resources for the root to hold. As you can see, by default it's
 everything (0-4294967295,0.0.0.0/8,::/0).
 
