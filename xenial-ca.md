@@ -20,7 +20,7 @@ I built the following:
 
 ## Xenial Install
 
-  * [http://releases.ubuntu.com/16.04/ubuntu-16.04-server-amd64.iso 16.04 Ubuntu Xenial LTS 64-bit server]c
+  * [ 16.04 Ubuntu Xenial LTS 64-bit server](http://releases.ubuntu.com/16.04/ubuntu-16.04-server-amd64.iso)
   * I do a fairly basic install, OpenSSH, basic utilities, and grub 
   * apt update and apt dist-upgrade of course 
   * I install automatic updates, emacs-nox, ntp, ... with ansible. Note
